@@ -5,7 +5,7 @@ import SecondsCounter from "./SimpleCounter";
 export function Home() {
 	return (
 		<div className="container-fluid text-center mt-5 ">
-			<SecondsCounter />
+			<SecondsCounter seconds="20" minutes="20" hour="25" />
 		</div>
 	);
 }

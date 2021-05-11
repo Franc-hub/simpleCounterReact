@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 
-const SimpleCounter = () => {
-	const [second, setSecond] = useState("00");
-	const [minute, setMinute] = useState("00");
-	const [hours, setHours] = useState("00");
+const SimpleCounter = ({ seconds, minutes, hour }) => {
+	const [second, setSecond] = useState(seconds);
+	const [minute, setMinute] = useState(minutes);
+	const [hours, setHours] = useState(hour);
 	const [isActive, setIsActive] = useState(false);
 	const [counter, setCounter] = useState(0);
+
 	let intervalId;
+
 	useEffect(() => {
 		if (isActive) {
 			intervalId = setInterval(() => {
@@ -33,24 +35,25 @@ const SimpleCounter = () => {
 
 				setCounter(counter => counter + 1);
 			}, 1000);
+			return () => clearInterval(intervalId);
 		}
-
-		return () => clearInterval(intervalId);
 	}, [isActive, counter]);
+
 	const reset = () => {
-		setSecond("00");
-		setMinute("00");
-		setHours("00");
+		setIsActive(isActive);
+		setCounter(0);
 	};
 	return (
 		<div className="container">
+			<h1>COUNTER BY FRANC</h1>
 			<div className="time">
 				<div className="clock">
 					<i className="far fa-clock"></i>
 				</div>
-				<div className="hour">{hours} </div>
-				<div className="minute">{minute}</div>
+
 				<div className="second">{second}</div>
+				<div className="minute">{minute}</div>
+				<div className="hour">{hours} </div>
 			</div>
 			<div className="buttons">
 				<button
@@ -60,8 +63,6 @@ const SimpleCounter = () => {
 				</button>
 				<button
 					onClick={() => {
-						clearInterval(intervalId);
-						console.log(clearInterval);
 						reset();
 					}}
 					className="Reset">
