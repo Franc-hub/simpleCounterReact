@@ -1,210 +1,78 @@
 import React, { useState, useEffect } from "react";
 
-function SecondsCounter() {
-	var [time, setTime] = useState({ seconds: 0, minutes: 0, hours: 0 });
-	var [pauseStart, setPauseStart] = useState(false);
-	var [countdownOn, setCountdownOn] = useState(false);
-	var [timeOut, setTimeOut] = useState(false);
-
+const SimpleCounter = () => {
+	const [second, setSecond] = useState("00");
+	const [minute, setMinute] = useState("00");
+	const [hours, setHours] = useState("00");
+	const [isActive, setIsActive] = useState(false);
+	const [counter, setCounter] = useState(0);
+	let intervalId;
 	useEffect(() => {
-		if (document.hasFocus()) {
-			if (pauseStart && !countdownOn) {
-				const id = setInterval(() => {
-					if (time.seconds < 59) {
-						setTime(time => {
-							return { ...time, seconds: time.seconds + 1 };
-						});
-					} else if (time.seconds == 59 && time.minutes < 59) {
-						setTime(time => {
-							return {
-								...time,
-								minutes: time.minutes + 1,
-								seconds: 0
-							};
-						});
-					} else if (time.seconds == 59 && time.minutes == 59) {
-						setTime(time => {
-							return {
-								...time,
-								minutes: 0,
-								seconds: 0,
-								hours: time.hours + 1
-							};
-						});
-					}
-				}, 1000);
-				return () => clearInterval(id);
-			}
-			if (pauseStart && countdownOn) {
-				const idd = setInterval(() => {
-					if (time.seconds > 0) {
-						setTime(time => {
-							return { ...time, seconds: time.seconds - 1 };
-						});
-					} else if (time.seconds == 0 && time.minutes > 0) {
-						setTime(time => {
-							return {
-								...time,
-								seconds: 59,
-								minutes: time.minutes - 1
-							};
-						});
-					} else if (time.seconds == 0 && time.minutes == 0) {
-						setTime(time => {
-							return {
-								...time,
-								minutes: 59,
-								seconds: 59,
-								hours: time.hours - 1
-							};
-						});
-					}
-					if (
-						time.hours == 0 &&
-						time.minutes == 0 &&
-						time.seconds == 0
-					) {
-						setTimeOut((timeOut = true));
-					}
-				}, 1000);
-				return () => clearInterval(idd);
-			}
+		if (isActive) {
+			intervalId = setInterval(() => {
+				const hoursCounter = counter % 60;
+				const secondCounter = Math.floor(counter / 3600);
+				const minuteCounter = Math.floor(counter / 60);
+
+				const computedHour =
+					String(hoursCounter).length === 1
+						? `0${hoursCounter}`
+						: hoursCounter;
+				const computedSecond =
+					String(secondCounter).length === 1
+						? `0${secondCounter}`
+						: secondCounter;
+				const computedMinute =
+					String(minuteCounter).length === 1
+						? `0${minuteCounter}`
+						: minuteCounter;
+
+				setSecond(computedSecond);
+				setMinute(computedMinute);
+				setHours(computedHour);
+
+				setCounter(counter => counter + 1);
+			}, 1000);
 		}
-	}, [pauseStart, countdownOn, time.seconds, time.minutes, time.hours]);
-	const countdown = evt => {
-		const allowed = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-		if (!allowed.includes(evt.key)) {
-			evt.preventDefault();
-		}
-		if (
-			evt.key === "Enter" &&
-			evt.target.value !== "" &&
-			parseInt(evt.target.value) <= 995959
-		) {
-			var countdownNumber = parseInt(evt.target.value);
-			if (parseInt(countdownNumber.toString().slice(-2)) > 59) {
-				countdownNumber = countdownNumber + 40;
-			}
-			if (parseInt(countdownNumber.toString().slice(-4, -2)) > 59) {
-				countdownNumber = countdownNumber + 4000;
-			}
-			setTime(time => {
-				return {
-					...time,
-					seconds:
-						parseInt(countdownNumber.toString().slice(-2)) || 0,
-					minutes:
-						parseInt(countdownNumber.toString().slice(-4, -2)) || 0,
-					hours:
-						parseInt(countdownNumber.toString().slice(-6, -4)) || 0
-				};
-			});
-			setPauseStart((pauseStart = true));
-			setCountdownOn((countdownOn = true));
-		}
+
+		return () => clearInterval(intervalId);
+	}, [isActive, counter]);
+	const reset = () => {
+		setSecond("00");
+		setMinute("00");
+		setHours("00");
 	};
 	return (
-		<>
-			{!timeOut ? (
+		<div className="container">
+			<div className="time">
 				<div className="clock">
-					<div className="container-fluid">
-						<div className="ciao fas fa-hourglass-half" />
-						<div className="ciao">
-							{time.hours.toString()[
-								time.hours.toString().length - 2
-							] || 0}
-						</div>
-						<div className="ciao">
-							{time.hours.toString()[
-								time.hours.toString().length - 1
-							] || 0}
-						</div>
-						<div className="due">:</div>
-						<div className="ciao">
-							{time.minutes.toString()[
-								time.minutes.toString().length - 2
-							] || 0}
-						</div>
-						<div className="ciao">
-							{time.minutes.toString()[
-								time.minutes.toString().length - 1
-							] || 0}
-						</div>
-						<div className="due">:</div>
-						<div className="ciao">
-							{time.seconds.toString()[
-								time.seconds.toString().length - 2
-							] || 0}
-						</div>
-						<div className="ciao">
-							{time.seconds.toString()[
-								time.seconds.toString().length - 1
-							] || 0}
-						</div>
-					</div>
-					<input
-						type="text"
-						className="countdown"
-						min="1"
-						maxLength={6}
-						placeholder="Add a number and press Enter for the final Countdown!"
-						onKeyPress={countdown}
-					/>
-					<span>Max input 99:59:59</span>
-					{pauseStart ? (
-						<button
-							className="fa fa-pause"
-							onClick={() => setPauseStart((pauseStart = false))}
-						/>
-					) : (
-						<button
-							className="fa fa-play"
-							onClick={() => setPauseStart((pauseStart = true))}
-						/>
-					)}
-					<button
-						className="fa fa-redo"
-						onClick={() => {
-							setTime(time => {
-								return {
-									...time,
-									seconds: 0,
-									minutes: 0,
-									hours: 0
-								};
-							});
-
-							setPauseStart((pauseStart = false));
-							setCountdownOn((countdownOn = false));
-						}}
-					/>
+					<i className="far fa-clock"></i>
 				</div>
-			) : (
-				<div className="timeOut">
-					<h1>!!! TIME RAN OUT !!!</h1>
-					<button
-						className="fa fa-redo"
-						onClick={() => {
-							setTime(time => {
-								return {
-									...time,
-									seconds: 0,
-									minutes: 0,
-									hours: 0
-								};
-							});
-							setPauseStart((pauseStart = false));
-							setCountdownOn((countdownOn = false));
-							setTimeOut((timeOut = false));
-						}}
-					/>
-				</div>
-			)}
-		</>
+				<div className="hour">{hours} </div>
+				<div className="minute">{minute}</div>
+				<div className="second">{second}</div>
+			</div>
+			<div className="buttons">
+				<button
+					onClick={() => setIsActive(!isActive)}
+					className="start">
+					{isActive ? "Pause" : "Start"}
+				</button>
+				<button
+					onClick={() => {
+						clearInterval(intervalId);
+						console.log(clearInterval);
+						reset();
+					}}
+					className="Reset">
+					Reset
+				</button>
+			</div>
+		</div>
 	);
-}
+};
 
-export default SecondsCounter;
+export default SimpleCounter;
 
 // import React from "react";
 // import "../../styles/index.scss";
