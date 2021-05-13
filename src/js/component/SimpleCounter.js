@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 
-const SimpleCounter = ({ seconds, minutes, hour }) => {
-	const [second, setSecond] = useState(seconds);
-	const [minute, setMinute] = useState(minutes);
-	const [hours, setHours] = useState(hour);
+const SimpleCounter = () => {
+	const [second, setSecond] = useState("00");
+	const [minute, setMinute] = useState("00");
+	const [hours, setHours] = useState("00");
 	const [isActive, setIsActive] = useState(false);
 	const [counter, setCounter] = useState(0);
+	const [countDown, setCountDown] = useState(false);
+	const [endValue, setEndValue] = useState();
 
 	let intervalId;
 
@@ -32,8 +34,11 @@ const SimpleCounter = ({ seconds, minutes, hour }) => {
 				setSecond(computedSecond);
 				setMinute(computedMinute);
 				setHours(computedHour);
-
-				setCounter(counter => counter + 1);
+				if (countDown === true) {
+					setCounter(counter => counter - 1);
+				} else {
+					setCounter(counter => counter + 1);
+				}
 			}, 1000);
 			return () => clearInterval(intervalId);
 		}
@@ -42,9 +47,12 @@ const SimpleCounter = ({ seconds, minutes, hour }) => {
 	const reset = () => {
 		setIsActive(isActive);
 		setCounter(0);
+		setHours("00");
+		setMinute("00");
+		setSecond("00");
 	};
 	return (
-		<div className="container">
+		<div className="container-fluid">
 			<h1>COUNTER BY FRANC</h1>
 			<div className="time">
 				<div className="clock">
@@ -55,11 +63,30 @@ const SimpleCounter = ({ seconds, minutes, hour }) => {
 				<div className="minute">{minute}</div>
 				<div className="hour">{hours} </div>
 			</div>
+			<div className="col-md-12 mt-4">
+				<label> Enter your seconds here : </label>
+				<input
+					onChange={e => {
+						if (e !== null || e <= 0) {
+							setCounter(parseInt(e.target.value));
+						} else {
+							null;
+						}
+					}}></input>
+			</div>
+
 			<div className="buttons">
 				<button
 					onClick={() => setIsActive(!isActive)}
 					className="start">
 					{isActive ? "Pause" : "Start"}
+				</button>
+				<button
+					onClick={() => {
+						setCountDown(!countDown);
+						setIsActive(!isActive);
+					}}>
+					Count Down
 				</button>
 				<button
 					onClick={() => {
