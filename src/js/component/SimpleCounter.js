@@ -7,7 +7,7 @@ const SimpleCounter = () => {
 	const [isActive, setIsActive] = useState(false);
 	const [counter, setCounter] = useState(0);
 	const [countDown, setCountDown] = useState(false);
-	const [endValue, setEndValue] = useState();
+	const [endValue, setEndValue] = useState(0);
 
 	let intervalId;
 
@@ -34,15 +34,23 @@ const SimpleCounter = () => {
 				setSecond(computedSecond);
 				setMinute(computedMinute);
 				setHours(computedHour);
-				if (countDown === true) {
-					setCounter(counter => counter - 1);
-				} else {
+				if (countDown === true && counter >= 0) {
+					console.log(counter);
+					if (counter === 0) {
+						setCounter(0);
+						alert("Your time is reached");
+						setIsActive(false);
+						console.log(counter);
+					} else {
+						setCounter(counter => counter - 1);
+					}
+				} else if (countDown === false) {
 					setCounter(counter => counter + 1);
 				}
 			}, 1000);
 			return () => clearInterval(intervalId);
 		}
-	}, [isActive, counter]);
+	}, [isActive, counter, countDown]);
 
 	const reset = () => {
 		setIsActive(isActive);
@@ -67,12 +75,20 @@ const SimpleCounter = () => {
 				<label> Enter your seconds here : </label>
 				<input
 					onChange={e => {
-						if (e !== null || e <= 0) {
+						if (
+							e.target.value !== null &&
+							e.target.value >= 0 &&
+							e.target.value.length > 0 &&
+							!isNaN(e.target.value)
+						) {
 							setCounter(parseInt(e.target.value));
 						} else {
-							null;
+							setHours("00");
+							setMinute("00");
+							setSecond("00");
 						}
-					}}></input>
+					}}
+					defaultValue={counter}></input>
 			</div>
 
 			<div className="buttons">
@@ -86,7 +102,7 @@ const SimpleCounter = () => {
 						setCountDown(!countDown);
 						setIsActive(!isActive);
 					}}>
-					Count Down
+					{countDown === true ? "CountDown" : "Count"}
 				</button>
 				<button
 					onClick={() => {
